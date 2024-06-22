@@ -1,0 +1,92 @@
+export class Product {
+  id: string;
+  name: string;
+  price: number;
+  qty: number;
+  discount: number;
+
+  constructor(id: string, name: string, price: number, qty: number, discount: number) {
+    this.id = id;
+    this.name = name;
+    this.price = price;
+    this.qty = qty;
+    this.discount = discount;
+  }
+
+  getTotal(): number {
+    return this.price * this.qty;
+  }
+
+  getDiscountAmount(): number {
+    if (![0, 10, 20, 30].includes(this.discount)) {
+      throw new Error("Discount value can be either 0%, 10%, 20%, or 30%");
+    }
+    return this.getTotal() * (this.discount / 100);
+  }
+
+  getNetAmount(): number {
+    return this.getTotal() - this.getDiscountAmount();
+  }
+}
+
+
+
+import { Product } from './product.model';
+
+describe('Product', () => {
+  it('should calculate total amount correctly', () => {
+    const product = new Product('1', 'Test Product', 100, 2, 0);
+    expect(product.getTotal()).toEqual(200);
+  });
+
+  it('should calculate discount amount correctly for 10%', () => {
+    const product = new Product('1', 'Test Product', 100, 2, 10);
+    expect(product.getDiscountAmount()).toEqual(20);
+  });
+
+  it('should calculate discount amount correctly for 20%', () => {
+    const product = new Product('1', 'Test Product', 100, 2, 20);
+    expect(product.getDiscountAmount()).toEqual(40);
+  });
+
+  it('should calculate discount amount correctly for 30%', () => {
+    const product = new Product('1', 'Test Product', 100, 2, 30);
+    expect(product.getDiscountAmount()).toEqual(60);
+  });
+
+  it('should calculate net amount correctly with discount', () => {
+    const product = new Product('1', 'Test Product', 100, 2, 10);
+    expect(product.getNetAmount()).toEqual(180);
+  });
+
+  it('should calculate net amount correctly without discount', () => {
+    const product = new Product('1', 'Test Product', 100, 2, 0);
+    expect(product.getNetAmount()).toEqual(200);
+  });
+
+  it('should throw error for invalid discount', () => {
+    const product = new Product('1', 'Test Product', 100, 2, 15);
+    expect(() => product.getDiscountAmount()).toThrowError('Discount value can be either 0%, 10%, 20%, or 30%');
+  });
+
+  it('should return zero for zero price', () => {
+    const product = new Product('1', 'Test Product', 0, 2, 10);
+    expect(product.getTotal()).toEqual(0);
+    expect(product.getDiscountAmount()).toEqual(0);
+    expect(product.getNetAmount()).toEqual(0);
+  });
+
+  it('should handle negative price', () => {
+    const product = new Product('1', 'Test Product', -100, 2, 10);
+    expect(product.getTotal()).toEqual(-200);
+    expect(product.getDiscountAmount()).toEqual(-20);
+    expect(product.getNetAmount()).toEqual(-180);
+  });
+
+  it('should handle negative quantity', () => {
+    const product = new Product('1', 'Test Product', 100, -2, 10);
+    expect(product.getTotal()).toEqual(-200);
+    expect(product.getDiscountAmount()).toEqual(-20);
+    expect(product.getNetAmount()).toEqual(-180);
+  });
+});
